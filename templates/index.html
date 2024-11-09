@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stock Data Visualizer</title>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById("time").addEventListener("change", function() {
+            if (this.value === "intra") {
+                document.getElementById("dates").style.display = "none";
+                document.getElementById("interval").style.display = "block"; 
+            }else { 
+                document.getElementById("dates").style.display = "block";
+                document.getElementById("interval").style.display = "none";  
+            }
+        });
+        document.querySelector("form").addEventListener("submit", function(event) {
+        let time= document.getElementById("time").value;
+        let symbol = document.getElementById("symbol").value;
+        let chartType = document.getElementById("chart_type").value;
+        let start = document.getElementById("start").value;
+        let end = document.getElementById("end").value;
+        let interval = document.getElementById("interval").value;
+        if (symbol === "def") {
+            alert("Please select a symbol.");
+            event.preventDefault(); 
+        } else if (chartType === "def") {
+            alert("Please select a chart type.");
+            event.preventDefault(); 
+        } else if (time === "def") {
+            alert("Please select a time series.");
+            event.preventDefault(); 
+        } else if (time === "intra" && !interval) {
+            alert("Please select an interval for Intraday.");
+            event.preventDefault(); 
+        } else if (time !== "intra" && (!start || !end)) {
+            alert("Please select both Start and End dates.");
+            event.preventDefault();  
+        } else if (start && end && new Date(start) > new Date(end)) {
+            alert("Start date cannot be later than End date.");
+            event.preventDefault(); 
+        }
+    });
+});
+    </script>
+    <style>
+        body {
+            background-color: rgb(212, 227, 232);
+        }
+
+        h1 {
+            text-align: center;
+        }
+        form {
+            background-color: lightgray;
+        }
+        label {
+            padding: 10px;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>Stock Data Visualizer</h1>
+    <form method="post">
+        <label for="symbol">Choose Symbol</label>
+        <select id="symbol" name="symbol" required>
+            <option value="def" disabled selected>Select a Symbol</option> 
+            {% for symbol in symbols %}
+                <option value="{{ symbol }}">{{ symbol }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <label for="chart_type">Choose Chart Type</label>
+        <select id="chart_type" name="chart_type" required>
+            <option value="def" disabled selected>Select a Chart Type</option> 
+            <option value="bar">Bar</option>
+            <option value="line">Line</option>
+        </select><br><br>
+
+        <label for="time">Choose Time Series</label>
+        <select id="time" name="time" required>
+            <option value="def" disabled selected>Select a Time Series </option> 
+            <option value="intra">Intraday</option>
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+        </select><br><br>
+        <div id="dates">
+            <label for="start">Start Date</label>
+            <input type="date" id="start" name="start" required><br><br>
+            <label for="start">End Date</label>
+            <input type="date" id="end" name="end" required><br><br>
+        </div>
+        <div id="interval">
+            <label for="interval">Choose Interval</label>
+            <select id="interval" name="interval" required>
+                <option value="1">1min</option>
+                <option value="5">5</option>
+                <option value="15">15</option>
+                <option value="30">30</option>
+                <option value="60">60</option>
+            </select><br><br>
+        </div>
+        <button type="submit">Submit</button>
+    </form>
+
+    {% if chart_svg %}
+    <div id="chart_cont">
+        {{chart_svg | safe}}
+    </div>
+    {% endif %}
+</body>
+</html>
